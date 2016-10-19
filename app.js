@@ -6,10 +6,12 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-// var users = require('./routes/users');
 var students = require('./routes/students');
 
 var app = express();
+
+var Student = require('./models/Student.js');
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,7 +26,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-// app.use('/users', users);
 app.use('/students', students);
 
 // catch 404 and forward to error handler
@@ -60,11 +61,42 @@ app.use(function(err, req, res, next) {
 
 // load mongoose package
 var mongoose = require('mongoose');
+
 // Use native Node promises
 mongoose.Promise = global.Promise;
+
 // connect to MongoDB
 mongoose.connect('mongodb://localhost/student-mgmt-system-api')
   .then(() =>  console.log('connection succesful'))
   .catch((err) => console.error(err));
+
+// File read section
+var fs = require('fs');
+var parse = require('csv-parse');
+var async = require('async');
+
+var inputFile='students.csv';
+
+var parser = parse({delimiter: ','}, function (err, data) {
+  async.forEach(data, function (line, callback) {
+    var convertedObjects = JSON.stringify(line);
+    var objects = JSON.parse(convertedObjects)
+
+    console.log (objects[0] + '. ' + objects[1]);
+
+    var student = new Student({
+      rollno: objects[0],
+      name: objects[1],
+      class: objects[2]
+    })
+
+    student.save(function(err, student) {
+      if (err) return console.error(err);
+
+    })
+    callback();
+  })
+})
+fs.createReadStream(inputFile).pipe(parser);
 
 module.exports = app;
