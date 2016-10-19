@@ -82,7 +82,7 @@ var parser = parse({delimiter: ','}, function (err, data) {
     var convertedObjects = JSON.stringify(line);
     var objects = JSON.parse(convertedObjects)
 
-    console.log (objects[0] + '. ' + objects[1]);
+    console.log ("Inserting ... " + objects[0] + '. ' + objects[1]);
 
     var student = new Student({
       rollno: objects[0],
@@ -92,7 +92,6 @@ var parser = parse({delimiter: ','}, function (err, data) {
 
     student.save(function(err, student) {
       if (err) return console.error(err);
-
     })
     callback();
   })
